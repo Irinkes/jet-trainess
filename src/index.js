@@ -17,11 +17,10 @@ let pagesWrapper = document.querySelector('.page-nums');
 
 /* Выводим по 10 записей на 1 страницу */
 let displayPages = currentPage => {
-  let fromPage,
-    toPage,
-    previousPageLink = document.querySelector('.previous_page');
-  lastPage = pagesWrapper.getElementsByTagName('a').length;
-  nextPageLink = document.querySelector('.next_page');
+  let fromPage, toPage;
+  let previousPageLink = document.querySelector('.previous_page');
+  let lastPage = pagesWrapper.getElementsByTagName('a').length;
+  let nextPageLink = document.querySelector('.next_page');
 
   if (currentPage === 1) {
     previousPageLink.classList.add('disabled-page-link');
@@ -54,7 +53,7 @@ let displayPages = currentPage => {
     .querySelectorAll('a')
     [currentPage - 1].classList.add('active-page-link');
 
-  for (i = 0; i < rows.length; i++) {
+  for (let i = 0; i < rows.length; i++) {
     rows[i].style.display = 'none';
   }
   fromPage = currentPage * 10 - 9;
@@ -85,7 +84,6 @@ let turnPreviousPage = () => {
   let currentPage = parseInt(
     pagesWrapper.querySelector('.active-page-link').textContent,
   );
-  let previousPageLink = document.querySelector('.previous_page');
 
   if (currentPage > 1) {
     displayPages(currentPage - 1);
@@ -95,20 +93,45 @@ let turnPreviousPage = () => {
 };
 
 let turnNextPage = () => {
-  let nextPageLink, currentPage, lastPage;
-
-  nextPageLink = document.querySelector('.next_page');
-  currentPage = parseInt(
+  let currentPage = parseInt(
     pagesWrapper.querySelector('.active-page-link').textContent,
   );
-  lastPage = pagesWrapper.getElementsByTagName('a').length;
-
+  let lastPage = pagesWrapper.getElementsByTagName('a').length;
   if (currentPage < lastPage) {
     displayPages(currentPage + 1);
   } else {
     return;
   }
 };
+/*Сортируем таблицу*/
+let sortTable = () => {
+    let sortType, compareRows, cellindex, sortColHeader;
+    if(event.target.tagName==='TH') {
+      sortType = event.target.getAttribute('data-type');
+      cellindex = event.target.cellIndex;
+      sortColHeader =
+    }
+    else if(event.target.className==='sort-arrow') {
+        sortType = event.target.parentNode.getAttribute('data-type');
+        cellindex = event.target.parentNode.cellIndex;
+    }
+    else if(event.target.className==='sort-arrow-up' || event.target.className==='sort-arrow-down'){
+        sortType = event.target.parentNode.parentNode.getAttribute('data-type');
+        cellindex = event.target.parentNode.parentNode.cellIndex;
+    }
+
+    if(sortType==='abc') {
+        compareRows = (rowA, rowB) => {
+            return rowA.cells[cellindex].innerHTML.toLowerCase() > rowB.cells[cellindex].innerHTML.toLowerCase()? 1: -1;
+        }
+    }
+
+    else if(sortType==='123') {
+        compareRows = function (rowA, rowB) {
+            return rowA.cells[sortColHeader.parentNode.cellIndex].innerHTML - rowB.cells[sortColHeader.parentNode.cellIndex].innerHTML;
+        }
+    }
+}
 
 /*Инициализируем первую страницу таблицы */
 
@@ -122,3 +145,4 @@ document.querySelector('.next_page').addEventListener('click', turnNextPage);
 document
   .querySelector('.previous_page')
   .addEventListener('click', turnPreviousPage);
+table.addEventListener('click', sortTable);
