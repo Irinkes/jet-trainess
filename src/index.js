@@ -12,12 +12,15 @@
 
 const table = document.querySelector('.table');
 const tbody = table.getElementsByTagName('tbody')[0];
-let rows = tbody.getElementsByTagName('tr');
+var rows;
+
+
 let pagesWrapper = document.querySelector('.page-nums');
 
 /* Выводим по 10 записей на 1 страницу */
-let displayPages = currentPage => {
-  let fromPage, toPage;
+let displayPages = (currentPage, rows) => {
+    console.log(rows);
+  var fromPage, toPage;
   let previousPageLink = document.querySelector('.previous_page');
   let lastPage = pagesWrapper.getElementsByTagName('a').length;
   let nextPageLink = document.querySelector('.next_page');
@@ -49,15 +52,24 @@ let displayPages = currentPage => {
       allPageLinks[i].classList.remove('active-page-link');
     }
   }
-  pagesWrapper
-    .querySelectorAll('a')
-    [currentPage - 1].classList.add('active-page-link');
+  console.log('currentPage '+currentPage);
+  pagesWrapper.querySelectorAll('a')[currentPage - 1].classList.add('active-page-link');
+
+  console.log('length: '+ rows.length);
 
   for (let i = 0; i < rows.length; i++) {
     rows[i].style.display = 'none';
   }
   fromPage = currentPage * 10 - 9;
   toPage = currentPage * 10;
+
+  if(rows.length-1<toPage) {
+      console.log('fdfsdfsfs');
+      toPage = rows.length-1;
+  }
+    console.log(fromPage);
+  console.log(toPage);
+
   for (let i = fromPage - 1; i < toPage; i++) {
     rows[i].style.display = '';
   }
@@ -68,14 +80,22 @@ let displayPages = currentPage => {
 let makePages = () => {
   let quantityOfRows, pages, pageLink;
 
-  quantityOfRows = tbody.getElementsByTagName('tr').length;
+  if(document.querySelector('.filtered')) {
+      document.querySelector('.page-nums').innerHTML='';
+      quantityOfRows = tbody.querySelectorAll('.filtered').length;
+      rows = tbody.querySelectorAll('.filtered');
+  } else {
+      quantityOfRows = tbody.getElementsByTagName('tr').length;
+      rows = tbody.getElementsByTagName('tr');
+  }
+
   pages = Math.ceil(quantityOfRows / 10);
 
   for (let i = 1; i <= pages; i++) {
     pageLink = document.createElement('a');
     pageLink.setAttribute('href', '#');
     pageLink.textContent = i;
-    pageLink.addEventListener('click', displayPages.bind(null, i));
+    pageLink.addEventListener('click', displayPages.bind(null, i, rows));
     pagesWrapper.appendChild(pageLink);
   }
 };
@@ -85,8 +105,15 @@ let turnPreviousPage = () => {
     pagesWrapper.querySelector('.active-page-link').textContent,
   );
 
+    if(document.querySelector('.filtered')) {
+        rows = document.querySelectorAll('.filtered');
+    }
+    else {
+        rows = tbody.getElementsByTagName('tr');
+    }
+
   if (currentPage > 1) {
-    displayPages(currentPage - 1);
+    displayPages(currentPage - 1, rows);
   } else if (currentPage === 1) {
     return;
   }
@@ -97,8 +124,14 @@ let turnNextPage = () => {
     pagesWrapper.querySelector('.active-page-link').textContent,
   );
   let lastPage = pagesWrapper.getElementsByTagName('a').length;
+    if(document.querySelector('.filtered')) {
+        rows = document.querySelectorAll('.filtered');
+    }
+    else {
+       rows = tbody.getElementsByTagName('tr');
+    }
   if (currentPage < lastPage) {
-    displayPages(currentPage + 1);
+    displayPages(currentPage + 1, rows);
   } else {
     return;
   }
@@ -107,7 +140,7 @@ let turnNextPage = () => {
 let sortTable = () => {
     let sortType, compareRows, cellindex, tableHeaderCell, allSortUpBtns, allSortDownBtns;
     let rowArray = [].slice.call(tbody.rows);
-    console.log(rowArray);
+
     if(event.target.tagName==='TH') {
       sortType = event.target.getAttribute('data-type');
       cellindex = event.target.cellIndex;
@@ -123,6 +156,10 @@ let sortTable = () => {
         cellindex = event.target.parentNode.parentNode.cellIndex;
         tableHeaderCell = event.target.parentNode.parentNode;
     }
+    else {
+        return;
+    }
+
 
     if(sortType==='abc') {
         compareRows = (rowA, rowB) => {
@@ -201,15 +238,38 @@ let sortTable = () => {
 
 /*Фильтруем таблицу */
 let filterTable = () => {
+    rows = tbody.getElementsByTagName('tr');
+    for(let i=0; i<rows.length; i++) {
+        if(rows[i].classList.contains('filtered')) {
+            rows[i].classList.remove('filtered');
+        }
+    }
     let allData = table.getElementsByTagName('td');
-    console.log(allData);
+    let filteredValue = document.getElementById('filtered-value').value;
+
+
+    for(let i=0; i<rows.length; i++) {
+        rows[i].style.display = 'none';
+
+        let cells = rows[i].cells;
+
+        for(let k=0; k<cells.length;k++) {
+            if(cells[k].textContent.toLowerCase().includes(filteredValue.toLowerCase())) {
+                rows[i].style.display = '';
+                rows[i].classList.add('filtered');
+            }
+        }
+    }
+    makePages();
+    displayPages(1,rows);
 }
 
 /*Инициализируем первую страницу таблицы */
 
 let initTable = () => {
   makePages();
-  displayPages(1);
+  rows = tbody.getElementsByTagName('tr');
+  displayPages(1,rows);
 };
 
 document.addEventListener('DOMContentLoaded', initTable);
