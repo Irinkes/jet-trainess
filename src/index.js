@@ -105,19 +105,23 @@ let turnNextPage = () => {
 };
 /*Сортируем таблицу*/
 let sortTable = () => {
-    let sortType, compareRows, cellindex, sortColHeader;
+    let sortType, compareRows, cellindex, tableHeaderCell, allSortUpBtns, allSortDownBtns;
+    let rowArray = [].slice.call(tbody.rows);
+    console.log(rowArray);
     if(event.target.tagName==='TH') {
       sortType = event.target.getAttribute('data-type');
       cellindex = event.target.cellIndex;
-      sortColHeader =
+      tableHeaderCell = event.target;
     }
     else if(event.target.className==='sort-arrow') {
         sortType = event.target.parentNode.getAttribute('data-type');
         cellindex = event.target.parentNode.cellIndex;
+        tableHeaderCell = event.target.parentNode;
     }
     else if(event.target.className==='sort-arrow-up' || event.target.className==='sort-arrow-down'){
         sortType = event.target.parentNode.parentNode.getAttribute('data-type');
         cellindex = event.target.parentNode.parentNode.cellIndex;
+        tableHeaderCell = event.target.parentNode.parentNode;
     }
 
     if(sortType==='abc') {
@@ -128,9 +132,77 @@ let sortTable = () => {
 
     else if(sortType==='123') {
         compareRows = function (rowA, rowB) {
-            return rowA.cells[sortColHeader.parentNode.cellIndex].innerHTML - rowB.cells[sortColHeader.parentNode.cellIndex].innerHTML;
+            return parseInt(rowA.cells[cellindex].innerHTML) - parseInt(rowB.cells[cellindex].innerHTML);
         }
     }
+
+    else if(sortType==='date') {
+
+        compareRows = function (rowA, rowB) {
+            let dateA = new Date(rowA.cells[cellindex].innerHTML);
+
+            let dateB = new Date(rowB.cells[cellindex].innerHTML);
+
+            return dateB - dateA;
+        }
+    }
+
+    else if(sortType==='salary') {
+        compareRows = function (rowA, rowB) {
+            let numA = rowA.cells[cellindex].innerHTML;
+            numA = parseFloat(numA.replace(/[^\d\.]/, ''));
+            let numB = rowB.cells[cellindex].innerHTML;
+            numB = parseFloat(numB.replace(/[^\d\.]/, ''));
+            return parseInt(numA - numB);
+        }
+    }
+
+
+
+
+    let appendSortedRows = (rowArray) => {
+        table.removeChild(tbody);
+        for(i=0;i<rowArray.length;i++) {
+            tbody.appendChild(rowArray[i]);
+        }
+        table.appendChild(tbody);
+    }
+
+    allSortDownBtns = table.querySelector('.sort-down');
+    allSortUpBtns = table.querySelector('.sort-up');
+
+
+    if(!(tableHeaderCell.classList.contains('sort-up'))) {
+        rowArray = rowArray.sort(compareRows);
+        appendSortedRows(rowArray);
+
+        tableHeaderCell.classList.remove('sort-down');
+        tableHeaderCell.classList.add('sort-up');
+    }
+    else {
+        rowArray = rowArray.reverse();
+        appendSortedRows(rowArray);
+
+        tableHeaderCell.classList.remove('sort-up');
+        tableHeaderCell.classList.add('sort-down');
+    }
+
+    if(allSortUpBtns){
+
+        allSortUpBtns.classList.remove('sort-up'); /*убираем значок сортировки со всех столбиков*/
+    }
+    else if (allSortDownBtns) {
+
+        allSortDownBtns.classList.remove('sort-down'); /*убираем значок сортировки со всех столбиков*/
+    }
+
+
+}
+
+/*Фильтруем таблицу */
+let filterTable = () => {
+    let allData = table.getElementsByTagName('td');
+    console.log(allData);
 }
 
 /*Инициализируем первую страницу таблицы */
@@ -146,3 +218,4 @@ document
   .querySelector('.previous_page')
   .addEventListener('click', turnPreviousPage);
 table.addEventListener('click', sortTable);
+document.getElementById('search-btn').addEventListener('click', filterTable)

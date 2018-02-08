@@ -38,6 +38,8 @@ html {
   float: right;
 }
 
+/*Стрелки сортировки*/
+
 .sort-arrow-up {
   width: 0;
   height: 0;
@@ -54,6 +56,21 @@ html {
   border-right: 5px solid transparent;
   border-top: 10px solid #dfdfdf;
 }
+
+.sort-down .sort-arrow-up {
+  visibility: hidden;
+}
+.sort-down .sort-arrow-down {
+  border-top: 10px solid #8183d8 !important;
+}
+
+.sort-up .sort-arrow-down {
+  visibility: hidden;
+}
+.sort-up .sort-arrow-up {
+  border-bottom: 10px solid  #8183d8 !important;
+}
+
 
 /*Pagination*/
 
@@ -93,5 +110,6 @@ html {
   border-radius: 2px;
   background: linear-gradient(to bottom, #fafafa 22%, #dfdfdf 100%);
 }
+
 
 
