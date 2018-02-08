@@ -24,8 +24,12 @@ html {
   padding: 0.75em;
   border-bottom: 2px solid #000000;
 }
+.table tr:nth-child(10n),  .table tr:last-child{
+  border-bottom: 2px solid #000000;
+}
 
-.table tbody tr:nth-of-type(odd) {
+
+.table tbody tr:nth-of-type(odd){
   background-color: #f9f9f9;
 }
 
